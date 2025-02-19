@@ -122,49 +122,36 @@ void FirstApp::run() {
 }
 
 void FirstApp::loadGameObjects() {
-  std::shared_ptr<LveModel> lveModel =
-      LveModel::createModelFromFile(lveDevice, "models/flat_vase.obj");
-  auto flatVase = LveGameObject::createGameObject();
-  flatVase.model = lveModel;
-  flatVase.transform.translation = {-.5f, .5f, 0.f};
-  flatVase.transform.scale = {3.f, 1.5f, 3.f};
-  // gameObjects.emplace(flatVase.getId(), std::move(flatVase));
-
-  lveModel = LveModel::createModelFromFile(lveDevice, "models/smooth_vase.obj");
-  auto smoothVase = LveGameObject::createGameObject();
-  smoothVase.model = lveModel;
-  smoothVase.transform.translation = {.5f, .5f, 0.f};
-  smoothVase.transform.scale = {3.f, 2.f, 3.f};
-  // gameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
-
-  lveModel = LveModel::createModelFromFile(lveDevice, "models/quad.obj");
-  auto floor = LveGameObject::createGameObject();
-  floor.model = lveModel;
-  floor.transform.translation = {0.f, .5f, 0.f};
-  floor.transform.scale = {3.f, 1.f, 3.f};
-  gameObjects.emplace(floor.getId(), std::move(floor));
+  std::shared_ptr<LveModel> lveModel;
+  float scale = 0.25f;
+  float transform = 2.0 * scale;
+  int dimensions = 8;
+  for (int i = 0; i < dimensions; i++) {
+    for (int j = 0; j < dimensions; j++) {
+      for (int k = 0; k < dimensions; k++) {
+        float t_i =
+            float(i * transform + 0.01f); // transform in the x direction
+        float t_j =
+            float(j * transform + 0.01f); // transform in the y direction
+        float t_k =
+            float(k * transform + 0.01f); // transform in the z direction
+        lveModel = LveModel::createModelFromFile(lveDevice, "models/cube.obj");
+        auto cube = LveGameObject::createGameObject();
+        cube.model = lveModel;
+        cube.transform.translation = {t_i, t_j, t_k};
+        cube.transform.scale = {scale, scale, scale};
+        gameObjects.emplace(cube.getId(), std::move(cube));
+      }
+    }
+  }
 
   std::vector<glm::vec3> lightColors{
       {1.f, .1f, .1f}, {.1f, .1f, 1.f}, {.1f, 1.f, .1f},
       {1.f, 1.f, .1f}, {.1f, 1.f, 1.f}, {1.f, 1.f, 1.f} //
   };
 
-  lveModel = LveModel::createModelFromFile(lveDevice, "models/horse.obj");
-  auto horse = LveGameObject::createGameObject();
-  horse.model = lveModel;
-  horse.transform.translation = {0.f, 500.f, 0.f};
-  horse.transform.scale = {200.f, 200.f, 200.f};
-  // gameObjects.emplace(horse.getId(), std::move(horse));
-
-  lveModel = LveModel::createModelFromFile(lveDevice, "models/dragon.obj");
-  auto dragon = LveGameObject::createGameObject();
-  dragon.model = lveModel;
-  dragon.transform.translation = {0.f, -0.5f, 0.f};
-  dragon.transform.scale = {.5f, .5f, .5f};
-  gameObjects.emplace(dragon.getId(), std::move(dragon));
-
   for (int i = 0; i < lightColors.size(); i++) {
-    auto pointLight = LveGameObject::makePointLight(0.2f);
+    auto pointLight = LveGameObject::makePointLight(0.5f);
     pointLight.color = lightColors[i];
     auto rotateLight = glm::rotate(
         glm::mat4(1.f), (i * glm::two_pi<float>()) / lightColors.size(),
