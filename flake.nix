@@ -102,7 +102,7 @@
               (writeShellApplication {
                 ## Lets renderdoc run on wayland using xwayland
                 name = "renderdoc";
-                text = "QT_QPA_PLATFORM=xcb qrenderdoc";
+                text = "QT_QPA_PLATFORM=xcb env -u WAYLAND_DISPLAY qrenderdoc";
               })
 
               #############
