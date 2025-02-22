@@ -58,10 +58,7 @@
 
               #################
               ### Libraries ###
-              glfw
-              glm
-              stb
-              tinyobjloader
+              glfw3
               #################
 
               #################
