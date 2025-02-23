@@ -1,35 +1,21 @@
 const std = @import("std");
 const c = @import("clibs.zig");
+const window = @import("render/window.zig");
+const math = @import("math.zig");
+const vk = @import("render/vulkan.zig");
+const render = @import("render/render.zig");
+
+pub const window_width: usize = 800;
+pub const window_height: usize = 600;
 
 pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
+    const w = try window.Window.create(window_width, window_height, "Sample Window");
+    defer w.destroy();
 
-    var result: c.VkResult = undefined;
-    var createInfo = std.mem.zeroes(c.VkInstanceCreateInfo);
-    var instance: c.VkInstance = undefined;
-    var versionSupported: u32 = undefined;
+    const r = try render.initVulkan();
+    defer r.destroy();
 
-    result = c.vkEnumerateInstanceVersion(&versionSupported);
-    if (result != c.VK_SUCCESS) {
-        try stdout.print("Failed to get Vulkan version. Vulkan might not be installed.", .{});
-        return error.VulkanNotFound;
+    while (!w.shouldClose()) {
+        c.glfwPollEvents();
     }
-
-    const major: u32 = c.VK_VERSION_MAJOR(versionSupported);
-    const minor: u32 = c.VK_VERSION_MINOR(versionSupported);
-    const patch: u32 = c.VK_VERSION_PATCH(versionSupported);
-
-    try stdout.print("Vulkan is installed\n", .{});
-    try stdout.print("Supported Vulkan version: {}.{}.{}\n", .{ major, minor, patch });
-
-    createInfo.sType = c.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    result = c.vkCreateInstance(&createInfo, null, &instance);
-
-    if (result != c.VK_SUCCESS) {
-        try stdout.print("Failed to create Vulkan instance. Error code: {}\n", .{result});
-        return error.InstanceNotCreated;
-    }
-
-    c.vkDestroyInstance(instance, null);
-    try stdout.print("Successfully created and destroyed a Vulkan instance.\n", .{});
 }
